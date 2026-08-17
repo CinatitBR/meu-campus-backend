@@ -20,3 +20,31 @@ Pasta que contém arquivos SQL utilizados para criar o banco de dados local do C
 
 - `schema.sql`: cria o schema que simula o banco de dados de produção.
 - `seed.sql`: popula as tabelas do banco de dados local, de forma a simular o banco remoto.
+
+### Rotas da API
+
+**POST `api/visual-route`**:  
+Essa é a rota responsável por criar rotas visuais. Ela é definida pela função `handleCreateVisualRoute()`.
+
+Recebe um formData contendo os dados para a criação da rota visual. Os campos esperados no formData são:
+
+```json
+{
+    "title": string,
+    "building-id": string,
+    "status": "published" || "hidden",
+    "steps_metadata": {
+        "step_order": number,
+        "description": string,
+        "lon": number,
+        "lat": number
+    }[],
+    /*
+        Representa a imagem associada a steps_metadata[i].
+
+        Portanto, se o tamanho do array steps_metadata for 3,
+        devem existir step_image_0, step_image_1, step_image_2.
+    */
+    "step_image_i": Blob // Blob: tipo de dado que representa uma imagem.
+}
+```
