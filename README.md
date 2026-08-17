@@ -30,21 +30,87 @@ Recebe um formData contendo os dados para a criação da rota visual. Os campos 
 
 ```json
 {
-    "title": string,
-    "building-id": string,
-    "status": "published" || "hidden",
-    "steps_metadata": {
-        "step_order": number,
-        "description": string,
-        "lon": number,
-        "lat": number
-    }[],
-    /*
-        Representa a imagem associada a steps_metadata[i].
-
-        Portanto, se o tamanho do array steps_metadata for 3,
-        devem existir step_image_0, step_image_1, step_image_2.
-    */
-    "step_image_i": Blob // Blob: tipo de dado que representa uma imagem.
+	"openapi": "3.0.3",
+	"info": {
+		"title": "Visual Route API",
+		"version": "1.0.0",
+		"description": "API para criação de rotas visuais estruturadas com metadados e imagens geolocalizadas por etapa."
+	},
+	"paths": {
+		"/api/visual-route": {
+			"post": {
+				"summary": "Criar Rota Visual",
+				"description": "Cria uma nova rota visual a partir de metadados das etapas e imagens associadas dinamicamente via FormData.",
+				"operationId": "handleCreateVisualRoute",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"title": {
+										"type": "string",
+										"description": "Título descritivo da rota visual."
+									},
+									"building-id": {
+										"type": "string",
+										"description": "Identificador único do edifício associado."
+									},
+									"status": {
+										"type": "string",
+										"enum": ["published", "hidden"],
+										"description": "Estado de visibilidade da rota."
+									},
+									"steps_metadata": {
+										"type": "array",
+										"description": "Lista de metadados das etapas estruturada em formato JSON stringificado (ou múltiplos campos indexados dependendo do parser).",
+										"items": {
+											"type": "object",
+											"properties": {
+												"step_order": {
+													"type": "integer",
+													"description": "Ordem sequencial da etapa."
+												},
+												"description": {
+													"type": "string",
+													"description": "Descrição textual da etapa."
+												},
+												"lon": {
+													"type": "number",
+													"format": "float",
+													"description": "Longitude para geolocalização."
+												},
+												"lat": {
+													"type": "number",
+													"format": "float",
+													"description": "Latitude para geolocalização."
+												}
+											},
+											"required": ["step_order", "description", "lon", "lat"]
+										}
+									}
+								},
+								"required": ["title", "building-id", "status", "steps_metadata"],
+								"additionalProperties": {
+									"type": "string",
+									"format": "binary",
+									"description": "Campos dinâmicos no formato `step_image_i` (ex: step_image_0, step_image_1) contendo o arquivo de imagem correspondente ao índice da etapa em `steps_metadata`."
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Rota visual criada com sucesso."
+					},
+					"400": {
+						"description": "Dados de requisição inválidos ou ausência de arquivos de imagem obrigatórios."
+					}
+				}
+			}
+		}
+	}
 }
 ```
